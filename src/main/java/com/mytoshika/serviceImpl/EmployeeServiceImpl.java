@@ -59,9 +59,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public EmployeeDto getEmployeeById(String id) {
+	public EmployeeDto getEmployeeById(UUID id) {
 		EmployeeDto response = null;
-		Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(id);
+		Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(id.toString());
 		if(optionalEmployeeEntity.isPresent()) {
 			response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
 			return response;
@@ -79,6 +79,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 			return responseList;
 		}
 		return responseList;
+	}
+
+	@Override
+	public EmployeeDto deleteEmployeeDetails(UUID id) {
+		EmployeeDto response = null;
+		Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(id.toString());
+		if(optionalEmployeeEntity.isPresent()) {
+			employeeRepository.deleteById(id.toString());
+			response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
+			return response;
+		}
+		return response;
 	}
 
 }

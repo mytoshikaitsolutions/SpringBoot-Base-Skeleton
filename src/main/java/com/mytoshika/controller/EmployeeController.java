@@ -1,9 +1,11 @@
 package com.mytoshika.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +49,7 @@ public class EmployeeController {
 	}
 	
 	@GetMapping("/{id}")
-	private ResponseEntity<ResponseBodyDTO<EmployeeDto>> getEmployeeById(@PathVariable("id") String id){
+	private ResponseEntity<ResponseBodyDTO<EmployeeDto>> getEmployeeById(@PathVariable("id") UUID id){
 		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setData(employeeService.getEmployeeById(id));
 		responseBodyDTO.setMessage("Employee details");
@@ -60,6 +62,15 @@ public class EmployeeController {
 		ResponseBodyDTO<List<EmployeeDto>> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setData(employeeService.getEmployeeList());
 		responseBodyDTO.setMessage("Employee details");
+		responseBodyDTO.setStatus(Status.SUCCESS);
+		return new ResponseEntity<>(responseBodyDTO, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/{id}")
+	private ResponseEntity<ResponseBodyDTO<EmployeeDto>> deleteEmployeeDetails(@PathVariable("id") UUID id){
+		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>();
+		responseBodyDTO.setData(employeeService.deleteEmployeeDetails(id));
+		responseBodyDTO.setMessage("Employee delete successfully");
 		responseBodyDTO.setStatus(Status.SUCCESS);
 		return new ResponseEntity<>(responseBodyDTO, HttpStatus.OK);
 	}
