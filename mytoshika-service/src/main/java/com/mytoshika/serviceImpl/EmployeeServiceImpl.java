@@ -8,7 +8,9 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.mytoshika.domain.EmployeeEntity;
 import com.mytoshika.dto.EmployeeDto;
@@ -47,25 +49,25 @@ public class EmployeeServiceImpl implements EmployeeService {
 		EmployeeDto response = null;
 		if(Objects.nonNull(employeeDto.getId())) {
 			Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(employeeDto.getId());
-			if(optionalEmployeeEntity.isPresent()) {
-				EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
-				employeeEntity.setId(optionalEmployeeEntity.get().getId());
-				employeeEntity = employeeRepository.save(employeeEntity);
-				response = modelMapper.map(employeeEntity, EmployeeDto.class);
-				return response;
+			if(!optionalEmployeeEntity.isPresent()) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record does'nt exist for this id to update.");
 			}
+			EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
+			employeeEntity.setId(optionalEmployeeEntity.get().getId());
+			employeeEntity = employeeRepository.save(employeeEntity);
+			response = modelMapper.map(employeeEntity, EmployeeDto.class);
+			return response;
 		}
 		return response;
 	}
 
 	@Override
 	public EmployeeDto getEmployeeById(String id) {
-		EmployeeDto response = null;
 		Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(id);
-		if(optionalEmployeeEntity.isPresent()) {
-			response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
-			return response;
+		if(!optionalEmployeeEntity.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record does'nt exist for this id.");
 		}
+		EmployeeDto response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
 		return response;
 	}
 
