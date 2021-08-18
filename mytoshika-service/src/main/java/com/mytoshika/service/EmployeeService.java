@@ -14,4 +14,6 @@ public interface EmployeeService {
 	public EmployeeDto getEmployeeById(String id);
 
 	public List<EmployeeDto> getEmployeeList();
+
+	public Boolean deleteEmployeeDetails(String id);
 }
