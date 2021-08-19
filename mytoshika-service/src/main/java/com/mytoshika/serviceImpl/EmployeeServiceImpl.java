@@ -8,13 +8,10 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.mytoshika.dao.EmployeeDao;
+import com.mytoshika.domain.EmployeeEntity;
 import com.mytoshika.dto.EmployeeDto;
-import com.mytoshika.entity.EmployeeEntity;
 import com.mytoshika.repository.EmployeeRepository;
 import com.mytoshika.service.EmployeeService;
 
@@ -29,7 +26,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private final ModelMapper modelMapper;
 
 	@Autowired
-	private EmployeeDao employeeDao;
+	private EmployeeRepository employeeRepository;
 
 	@Override
 	public EmployeeDto addEmployee(EmployeeDto employeeDto) {
@@ -38,7 +35,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		if(Objects.nonNull(employeeDto)) {
 			EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
 			employeeEntity.setId(UUID.randomUUID().toString());
-			employeeEntity = employeeDao.save(employeeEntity);
+			employeeEntity = employeeRepository.save(employeeEntity);
 			response = modelMapper.map(employeeEntity, EmployeeDto.class);
 			return response;
 		}
@@ -49,49 +46,39 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public EmployeeDto updateEmployeeDetails(EmployeeDto employeeDto) {
 		EmployeeDto response = null;
 		if(Objects.nonNull(employeeDto.getId())) {
-			Optional<EmployeeEntity> optionalEmployeeEntity = employeeDao.findById(employeeDto.getId());
-			if(!optionalEmployeeEntity.isPresent()) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record does'nt exist to update for this id to update.");
+			Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(employeeDto.getId());
+			if(optionalEmployeeEntity.isPresent()) {
+				EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
+				employeeEntity.setId(optionalEmployeeEntity.get().getId());
+				employeeEntity = employeeRepository.save(employeeEntity);
+				response = modelMapper.map(employeeEntity, EmployeeDto.class);
+				return response;
 			}
-			EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
-			employeeEntity.setId(optionalEmployeeEntity.get().getId());
-			employeeEntity = employeeDao.save(employeeEntity);
-			response = modelMapper.map(employeeEntity, EmployeeDto.class);
-			return response;
 		}
 		return response;
 	}
 
 	@Override
 	public EmployeeDto getEmployeeById(String id) {
-		Optional<EmployeeEntity> optionalEmployeeEntity = employeeDao.findById(id);
-		if(!optionalEmployeeEntity.isPresent()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record does'nt exist for this id.");
+		EmployeeDto response = null;
+		Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(id);
+		if(optionalEmployeeEntity.isPresent()) {
+			response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
+			return response;
 		}
-		EmployeeDto response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
 		return response;
 	}
 
 	@Override
 	public List<EmployeeDto> getEmployeeList() {
 		List<EmployeeDto> responseList = new ArrayList<>();
-		List<EmployeeEntity> employeeEntityList = employeeDao.findAll();
+		List<EmployeeEntity> employeeEntityList = employeeRepository.findAll();
 		if(Objects.nonNull(employeeEntityList)) {
 			employeeEntityList.stream().forEach(employeeEntity->
 				responseList.add(modelMapper.map(employeeEntity, EmployeeDto.class)));
 			return responseList;
 		}
 		return responseList;
-	}
-
-	@Override
-	public Boolean deleteEmployeeDetails(String id) {
-		EmployeeEntity employeeEntity = employeeDao.getOne(id);
-		if(Objects.isNull(employeeEntity)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record does'nt exist to delete for this id.");
-		}
-		employeeDao.delete(employeeEntity);
-		return true;
 	}
 
 }
