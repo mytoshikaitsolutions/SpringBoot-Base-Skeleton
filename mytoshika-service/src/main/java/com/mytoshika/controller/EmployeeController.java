@@ -34,8 +34,8 @@ public class EmployeeController {
 	@ApiOperation(value = "API to add employee details")
 	@Timed
 	@PostMapping("/add")
-	private ResponseEntity<ResponseBodyDTO<EmployeeDto>> addEmployee(@RequestBody EmployeeDto employeeDto) throws Exception{
-		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>();
+	private ResponseEntity<ResponseBodyDTO<EmployeeDto, Long>> addEmployee(@RequestBody EmployeeDto employeeDto) throws Exception{
+		ResponseBodyDTO<EmployeeDto, Long> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setData(employeeService.addEmployee(employeeDto));
 		responseBodyDTO.setMessage("Employee added successfully");
 		responseBodyDTO.setStatus(Status.SUCCESS);
@@ -44,8 +44,8 @@ public class EmployeeController {
 	
 	@ApiOperation(value = "API to update employee details by Id")
 	@PutMapping("/update")
-	private ResponseEntity<ResponseBodyDTO<EmployeeDto>> updateEmployeeDetails(@RequestBody EmployeeDto employeeDto){
-		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>();
+	private ResponseEntity<ResponseBodyDTO<EmployeeDto, Long>> updateEmployeeDetails(@RequestBody EmployeeDto employeeDto){
+		ResponseBodyDTO<EmployeeDto, Long> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setData(employeeService.updateEmployeeDetails(employeeDto));
 		responseBodyDTO.setMessage("Employee updated successfully");
 		responseBodyDTO.setStatus(Status.SUCCESS);
@@ -54,8 +54,8 @@ public class EmployeeController {
 	
 	@ApiOperation(value = "API to get employee details by Id")
 	@GetMapping("/{id}")
-	private ResponseEntity<ResponseBodyDTO<EmployeeDto>> getEmployeeById(@PathVariable("id") String id){
-		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>();
+	private ResponseEntity<ResponseBodyDTO<EmployeeDto, Long>> getEmployeeById(@PathVariable("id") String id){
+		ResponseBodyDTO<EmployeeDto, Long> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setData(employeeService.getEmployeeById(id));
 		responseBodyDTO.setMessage("Employee details");
 		responseBodyDTO.setStatus(Status.SUCCESS);
@@ -64,8 +64,8 @@ public class EmployeeController {
 	
 	@ApiOperation(value = "API to get all employee details")
 	@GetMapping()
-	private ResponseEntity<ResponseBodyDTO<List<EmployeeDto>>> getEmployeeList(){
-		ResponseBodyDTO<List<EmployeeDto>> responseBodyDTO = new ResponseBodyDTO<>();
+	private ResponseEntity<ResponseBodyDTO<List<EmployeeDto>, Long>> getEmployeeList(){
+		ResponseBodyDTO<List<EmployeeDto>, Long> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setData(employeeService.getEmployeeList());
 		responseBodyDTO.setMessage("Employee details");
 		responseBodyDTO.setStatus(Status.SUCCESS);
@@ -74,7 +74,11 @@ public class EmployeeController {
 	
 	@ApiOperation(value = "API to delete employee details by Id")
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<Boolean> deleteEmployeeDetails(@PathVariable("id") String id) {
-		return ResponseEntity.ok(employeeService.deleteEmployeeDetails(id));
+	public ResponseEntity<ResponseBodyDTO<Boolean, Long>> deleteEmployeeDetails(@PathVariable("id") String id) {
+		ResponseBodyDTO<Boolean, Long> responseBodyDTO = new ResponseBodyDTO<>();
+		responseBodyDTO.setData(employeeService.deleteEmployeeDetails(id));
+		responseBodyDTO.setMessage("Employee details");
+		responseBodyDTO.setStatus(Status.SUCCESS);
+		return new ResponseEntity<>(responseBodyDTO, HttpStatus.OK);
 	}
 }

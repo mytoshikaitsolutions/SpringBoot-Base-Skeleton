@@ -69,13 +69,14 @@ public class EmployeeControllerTest {
 		employeeDto.setEmail("emptest@gmail.com");
 		employeeDto.setDesignation("test");
 
-		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>(); 
+		ResponseBodyDTO<EmployeeDto, Long> responseBodyDTO = new ResponseBodyDTO<>(); 
 		responseBodyDTO.setStatus(Status.SUCCESS); 
 		responseBodyDTO.setMessage("Employee added successfully");
 		responseBodyDTO.setData(employeeDto);
 		String json=mapper.writeValueAsString(responseBodyDTO);
 
-		when(employeeService.addEmployee(employeeDto)).thenReturn(employeeDto);
+		when(employeeService.addEmployee(employeeDto))
+		.thenReturn(employeeDto);
 
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		this.mockMvc.perform(post("/employee/add")
@@ -83,7 +84,6 @@ public class EmployeeControllerTest {
 				.content(json))
 		.andDo(print())
 		.andExpect(status().isOk()) 
-		//		.andExpect(content().string(this.mapper.writeValueAsString(responseBodyDTO)))
 		.andExpect(jsonPath("$.status", is("SUCCESS")))
 		.andReturn();
 	}
@@ -99,19 +99,21 @@ public class EmployeeControllerTest {
 		employeeDto.setEmail("emptest@gmail.com");
 		employeeDto.setDesignation("test");
 
-		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>(); 
+		ResponseBodyDTO<EmployeeDto, Long> responseBodyDTO = new ResponseBodyDTO<>(); 
 		responseBodyDTO.setStatus(Status.SUCCESS); 
 		responseBodyDTO.setMessage("Employee updated successfully");
 		responseBodyDTO.setData(employeeDto);
 		String json=mapper.writeValueAsString(responseBodyDTO);
 
-		when(employeeService.updateEmployeeDetails(employeeDto)).thenReturn(employeeDto);
+		when(employeeService.updateEmployeeDetails(employeeDto))
+		.thenReturn(employeeDto);
 
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-		this.mockMvc.perform(put("/employee/update").contentType(MediaType.APPLICATION_JSON_VALUE).content(json))
+		this.mockMvc.perform(put("/employee/update")
+				.contentType(MediaType.APPLICATION_JSON_VALUE)
+				.content(json))
 		.andDo(print())
 		.andExpect(status().isOk()) 
-		//		.andExpect(content().string(this.mapper.writeValueAsString(responseBodyDTO)))
 		.andExpect(jsonPath("$.status", is("SUCCESS")))
 		.andReturn();
 	}
@@ -127,17 +129,18 @@ public class EmployeeControllerTest {
 		employeeDto.setLastName("Def");
 		employeeDto.setDesignation("CEO");
 
-		ResponseBodyDTO<EmployeeDto> responseBodyDTO = new ResponseBodyDTO<>();
+		ResponseBodyDTO<EmployeeDto, Long> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setMessage("Employee details");
 		responseBodyDTO.setStatus(Status.SUCCESS);
 		responseBodyDTO.setData(employeeDto);
 
-		when(employeeService.getEmployeeById("1")).thenReturn(employeeDto);
+		when(employeeService.getEmployeeById("1"))
+		.thenReturn(employeeDto);
 
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-		this.mockMvc.perform(get("/employee/{id}", 1).contentType(MediaType.APPLICATION_JSON_VALUE))
+		this.mockMvc.perform(get("/employee/{id}", 1)
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
 		.andDo(print())
-		//		.andExpect(content().string(this.mapper.writeValueAsString(responseBodyDTO)))
 		.andExpect(jsonPath("$.status", is("SUCCESS")))
 		.andExpect(status().isOk())
 		.andReturn();
@@ -164,17 +167,18 @@ public class EmployeeControllerTest {
 
 		List<EmployeeDto> allRecords = new ArrayList<>(Arrays.asList(employeeDto1, employeeDto2));
 
-		ResponseBodyDTO<List<EmployeeDto>> responseBodyDTO = new ResponseBodyDTO<>();
+		ResponseBodyDTO<List<EmployeeDto>, Long> responseBodyDTO = new ResponseBodyDTO<>();
 		responseBodyDTO.setMessage("Employee details");
 		responseBodyDTO.setStatus(Status.SUCCESS);
 		responseBodyDTO.setData(allRecords);
 
-		when(employeeService.getEmployeeList()).thenReturn(allRecords);
+		when(employeeService.getEmployeeList())
+		.thenReturn(allRecords);
 
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-		this.mockMvc.perform(get("/employee").contentType(MediaType.APPLICATION_JSON))
+		this.mockMvc.perform(get("/employee")
+				.contentType(MediaType.APPLICATION_JSON))
 		.andDo(print())
-		//		.andExpect(content().string(this.mapper.writeValueAsString(responseBodyDTO)))
 		.andExpect(jsonPath("$.status", is("SUCCESS")))
 		.andExpect(status().isOk())
 		.andReturn();
@@ -190,10 +194,12 @@ public class EmployeeControllerTest {
 		employeeDto.setLastName("Def");
 		employeeDto.setDesignation("CEO");
 
-		when(employeeService.deleteEmployeeDetails("1")).thenReturn(true);
+		when(employeeService.deleteEmployeeDetails("1"))
+		.thenReturn(true);
 		
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-		this.mockMvc.perform(delete("/employee/delete/{id}", "1").contentType(MediaType.APPLICATION_JSON))
+		this.mockMvc.perform(delete("/employee/delete/{id}", "1")
+				.contentType(MediaType.APPLICATION_JSON))
 		.andDo(print())
 		.andExpect(status().isOk())
 		.andReturn();
