@@ -6,7 +6,9 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreType
-public class ResponseBodyDTO<T> extends GenericResponse {
+public class ResponseBodyDTO<T, ID> extends GenericResponse {
 
 	T data;
+	
+	ID id;
 }
