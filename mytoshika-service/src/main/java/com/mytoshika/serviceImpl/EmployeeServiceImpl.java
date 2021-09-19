@@ -8,11 +8,13 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.mytoshika.domain.EmployeeEntity;
+import com.mytoshika.dao.EmployeeDao;
 import com.mytoshika.dto.EmployeeDto;
-import com.mytoshika.repository.EmployeeRepository;
+import com.mytoshika.entity.EmployeeEntity;
 import com.mytoshika.service.EmployeeService;
 
 import lombok.AllArgsConstructor;
@@ -26,7 +28,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private final ModelMapper modelMapper;
 
 	@Autowired
-	private EmployeeRepository employeeRepository;
+	private EmployeeDao employeeDao;
 
 	@Override
 	public EmployeeDto addEmployee(EmployeeDto employeeDto) {
@@ -35,7 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		if(Objects.nonNull(employeeDto)) {
 			EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
 			employeeEntity.setId(UUID.randomUUID().toString());
-			employeeEntity = employeeRepository.save(employeeEntity);
+			employeeEntity = employeeDao.save(employeeEntity);
 			response = modelMapper.map(employeeEntity, EmployeeDto.class);
 			return response;
 		}
@@ -46,11 +48,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public EmployeeDto updateEmployeeDetails(EmployeeDto employeeDto) {
 		EmployeeDto response = null;
 		if(Objects.nonNull(employeeDto.getId())) {
-			Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(employeeDto.getId());
+			Optional<EmployeeEntity> optionalEmployeeEntity = employeeDao.findById(employeeDto.getId());
 			if(optionalEmployeeEntity.isPresent()) {
 				EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
 				employeeEntity.setId(optionalEmployeeEntity.get().getId());
-				employeeEntity = employeeRepository.save(employeeEntity);
+				employeeEntity = employeeDao.save(employeeEntity);
 				response = modelMapper.map(employeeEntity, EmployeeDto.class);
 				return response;
 			}
@@ -61,7 +63,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public EmployeeDto getEmployeeById(String id) {
 		EmployeeDto response = null;
-		Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(id);
+		Optional<EmployeeEntity> optionalEmployeeEntity = employeeDao.findById(id);
 		if(optionalEmployeeEntity.isPresent()) {
 			response = modelMapper.map(optionalEmployeeEntity.get(), EmployeeDto.class);
 			return response;
@@ -72,13 +74,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<EmployeeDto> getEmployeeList() {
 		List<EmployeeDto> responseList = new ArrayList<>();
-		List<EmployeeEntity> employeeEntityList = employeeRepository.findAll();
-		if(Objects.nonNull(employeeEntityList)) {
+		List<EmployeeEntity> employeeEntityList = employeeDao.findAll();
+		if(Objects.nonNull(employeeEntityList) && !employeeEntityList.isEmpty()) {
 			employeeEntityList.stream().forEach(employeeEntity->
-				responseList.add(modelMapper.map(employeeEntity, EmployeeDto.class)));
+			responseList.add(modelMapper.map(employeeEntity, EmployeeDto.class)));
 			return responseList;
 		}
 		return responseList;
+	}
+
+	@Override
+	public Boolean deleteEmployeeDetails(String id) {
+		Optional<EmployeeEntity> employeeEntity = employeeDao.findById(id);
+		if(!employeeEntity.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Record does'nt exist to delete for this id.");
+		}
+		employeeDao.deleteById(id);
+		return true;
 	}
 
 }
